@@ -1,8 +1,8 @@
 export enum JobPosition {
-  STUDENT,
-  TEACHER,
-  TECHNICIAN,
-  ADMIN,
+  STUDENT = "STUDENT",
+  TEACHER = "TEACHER",
+  TECHNICIAN = "TECHNICIAN",
+  ADMIN = "ADMIN",
 }
 
 export interface Person {

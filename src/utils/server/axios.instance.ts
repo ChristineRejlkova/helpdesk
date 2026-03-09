@@ -12,7 +12,7 @@ if (!API_KEY || !API_URL) {
 
 export const axiosInstance = axios.create({
   baseURL: API_URL,
-  timeout: 20,
+  timeout: 20000,
   headers: {
     "content-type": "application/json",
     "x-api-key": API_KEY,
