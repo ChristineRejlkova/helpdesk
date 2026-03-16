@@ -1,9 +1,7 @@
 import PersonComponent from "@/components/person/Person";
 import { Person } from "@/types/person.types";
-import {
-  ActionResult,
-  getPersons,
-} from "@/utils/server/server-actions/person-actions";
+import { getPersons } from "@/utils/server/server-actions/get/persons-action.get";
+import { ActionResult } from "@/types/person-actions.types";
 import Link from "next/link";
 
 export default async function Home() {

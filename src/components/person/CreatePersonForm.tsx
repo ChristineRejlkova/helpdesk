@@ -1,7 +1,7 @@
 "use client";
 
 import { JobPosition, Person } from "@/types/person.types";
-import { createPerson } from "@/utils/server/server-actions/person-actions";
+import { createPerson } from "@/utils/server/server-actions/updateCreate/persons-action.update";
 import { useRouter } from "next/navigation";
 import { startTransition, useState } from "react";
 

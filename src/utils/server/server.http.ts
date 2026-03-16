@@ -1,6 +1,6 @@
 "server-only";
 
-import { AxiosRequestConfig, AxiosResponse } from "axios";
+import { AxiosRequestConfig } from "axios";
 import { axiosInstance } from "./axios.instance";
 
 export async function httpGet<TResponse>(
