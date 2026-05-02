@@ -1,24 +1,24 @@
 "use server";
 
 import { Person } from "@/types/person.types";
-import { ActionResult } from "../../../../types/person-actions.types";
+import { ActionResult } from "../../../../types/actions.types";
 import { AxiosResponse } from "axios";
-import { httpPost } from "../../server.http";
+import { httpPatch, httpPost } from "../../server.http";
 import { ApiError } from "@/types/error.types";
-import { updateTag } from "next/cache";
-
-export async function createPerson(
-  data: Person,
-): Promise<ActionResult<Person>> {
+import { revalidateTag } from "next/cache";
+export async function createPerson(data: Person): Promise<ActionResult<Person>> {
   try {
     const response = await httpPost<Person, AxiosResponse<Person>>(
       "/person",
-      data,
+      data
     );
 
-    // POST vrací vždy 201 ideálně (viz Swagger)
     if (response.status === 201) {
-      updateTag("persons");
+      revalidateTag("persons", "max");
+
+      if (response.data?.id) {
+        revalidateTag(`person-${response.data.id}`, "max");
+      }
 
       return {
         ok: true,
@@ -52,16 +52,18 @@ export async function createPerson(
   }
 }
 
-export async function editPerson(data: Person): Promise<ActionResult<Person>> {
+export async function editPerson(
+  id: string,
+  data: Omit<Person, "id">
+): Promise<ActionResult<Person>> {
   try {
-    const response = await httpPatch<Person, AxiosResponse<Person>>( // TODO: Implement httpPatch
-      `/person/${data.id}`,
-      data,
-    );
+    const response = await httpPatch<
+      Omit<Person, "id">,
+      AxiosResponse<Person>>(`/person/${id}`, data);
 
     if (response.status === 200) {
-      updateTag("persons");
-      updateTag(`persons/${data.id}`);
+      revalidateTag("persons", "max");
+      revalidateTag(`person-${id}`, "max");
 
       return {
         ok: true,

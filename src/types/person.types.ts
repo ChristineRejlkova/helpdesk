@@ -11,5 +11,5 @@ export interface Person {
   email: string;
   createdAt?: Date;
   jobPosition: JobPosition;
-  // studentId?: string;
+  studentId?: string;
 }

@@ -1,76 +1,83 @@
 "use client";
 
-import { JobPosition, Person } from "@/types/person.types";
+import { JobPosition } from "@/types/person.types";
 import { createPerson } from "@/utils/server/server-actions/updateCreate/persons-action.update";
 import { useRouter } from "next/navigation";
 import { startTransition, useState } from "react";
-
-export default function PersonForm() {
+import Card from "@/components/ui/Card";
+import Input from "@/components/ui/Input";
+import Select from "@/components/ui/Select";
+import Button from "@/components/ui/Button";
+import FormLayout from "@/components/ui/FormLayout";
+export default function CreatePersonForm() {
   const router = useRouter();
 
-  const [name, setName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [jobPosition, setJobPosition] = useState<JobPosition>(
-    JobPosition.STUDENT,
+    JobPosition.STUDENT
   );
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
+    <FormLayout title="Vytvořit osobu">
+      <Card>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
 
-        startTransition(async () => {
-          const person: Person = {
-            name,
-            email,
-            jobPosition,
-          };
+            if (!name || !email) {
+              alert("Vyplň všechna pole!");
+              return;
+            }
 
-          const response = await createPerson(person);
+            startTransition(async () => {
+              const res = await createPerson({
+                name,
+                email,
+                jobPosition,
+              });
 
-          if (response.ok) {
-            alert("Osoba byla úspěšně vytvořena!");
+              if (res.ok) {
+                setName("");
+                setEmail("");
+                setJobPosition(JobPosition.STUDENT);
 
-            router.push("/");
-          } else {
-            alert(
-              `Chyba při vytváření osoby: ${response.message} (status: ${response.statusCode})`,
-            );
-          }
-        });
-      }}
-    >
-      <label>
-        Jméno:
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-      </label>
-
-      <label>
-        Email:
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </label>
-
-      <label>
-        Pozice:
-        <select
-          value={jobPosition}
-          onChange={(e) => setJobPosition(e.target.value as JobPosition)}
+                router.push("/admin/person");
+              } else {
+                alert(res.message);
+              }
+            });
+          }}
+          style={{ display: "flex", flexDirection: "column", gap: "15px" }}
         >
-          <option value={JobPosition.STUDENT}>Student</option>
-          <option value={JobPosition.TEACHER}>Učitel</option>
-          <option value={JobPosition.TECHNICIAN}>Technik</option>
-        </select>
-      </label>
+          <Input
+            placeholder="Jméno"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
 
-      <button type="submit">Vytvořit osobu</button>
-    </form>
+          <Input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <Select
+            value={jobPosition}
+            onChange={(e) =>
+              setJobPosition(e.target.value as JobPosition)
+            }
+          >
+            <option value={JobPosition.STUDENT}>Student</option>
+            <option value={JobPosition.TEACHER}>Učitel</option>
+            <option value={JobPosition.TECHNICIAN}>Technik</option>
+            <option value={JobPosition.ADMIN}>Admin</option>
+          </Select>
+
+          <Button type="submit">Vytvořit</Button>
+        </form>
+      </Card>
+    </FormLayout>
   );
 }

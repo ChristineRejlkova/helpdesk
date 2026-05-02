@@ -23,8 +23,6 @@ axiosInstance.interceptors.response.use(
   (res) => res,
   (err: AxiosError) => {
     const response = err.response;
-
-    // Pokud by nebyla žádná odpověď, vrátíme chybu
     if (!response) throw new ApiError({ message: "Network error" });
 
     const retryAfter = response.headers?.["retry-after"] as string | undefined;

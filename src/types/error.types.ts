@@ -6,8 +6,7 @@ export interface ErrorDetails {
 
 export class ApiError extends Error {
   statusCode?: number;
-  retry?: number; // počet sekund do odbklování
-
+  retry?: number; 
   constructor(details: ErrorDetails) {
     super(details.message);
     this.statusCode = details.statusCode;
