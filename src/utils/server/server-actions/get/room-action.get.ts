@@ -2,16 +2,11 @@
 
 import { Room } from "@/types/room.types";
 import { ActionResult } from "@/types/actions.types";
-import { cacheTag, cacheLife } from "next/cache";
 import { AxiosResponse } from "axios";
 import { httpGet } from "../../server.http";
 import { ApiError } from "@/types/error.types";
 
 export async function getRooms(): Promise<ActionResult<Array<Room>>> {
-  "use cache";
-  cacheTag("rooms");
-  cacheLife({ revalidate: 300, expire: 3600 });
-
   try {
     const response: AxiosResponse<Array<Room>> =
       await httpGet<Array<Room>>("/room");
@@ -49,10 +44,6 @@ export async function getRooms(): Promise<ActionResult<Array<Room>>> {
 }
 
 export async function getRoom(id: string): Promise<ActionResult<Room>> {
-  "use cache";
-  cacheTag(`room-${id}`);
-  cacheLife({ revalidate: 300, expire: 3600 });
-
   try {
     const response: AxiosResponse<Room> =
       await httpGet<Room>(`/room/${id}`);

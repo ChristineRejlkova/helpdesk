@@ -1,42 +1,58 @@
 "server-only";
 
 import { ApiError } from "@/types/error.types";
-import axios, { AxiosError } from "axios";
+import axios, { type AxiosError, type AxiosInstance } from "axios";
 
-const API_URL = process.env.API_URL;
-const API_KEY = process.env.API_KEY;
+let axiosInstance: AxiosInstance | null = null;
 
-if (!API_KEY || !API_URL) {
-  throw Error("Env variables don't exist");
+function requireEnv(): { API_URL: string; API_KEY: string } {
+  const API_URL = process.env.API_URL;
+  const API_KEY = process.env.API_KEY;
+
+  if (!API_KEY || !API_URL) {
+    throw new Error("Env variables don't exist");
+  }
+
+  return { API_URL, API_KEY };
 }
 
-export const axiosInstance = axios.create({
-  baseURL: API_URL,
-  timeout: 20000,
-  headers: {
-    "content-type": "application/json",
-    "x-api-key": API_KEY,
-  },
-});
+export function getAxiosInstance(): AxiosInstance {
+  if (axiosInstance) {
+    return axiosInstance;
+  }
 
-axiosInstance.interceptors.response.use(
-  (res) => res,
-  (err: AxiosError) => {
-    const response = err.response;
-    if (!response) throw new ApiError({ message: "Network error" });
+  const { API_URL, API_KEY } = requireEnv();
 
-    const retryAfter = response.headers?.["retry-after"] as string | undefined;
+  axiosInstance = axios.create({
+    baseURL: API_URL,
+    timeout: 20000,
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": API_KEY,
+    },
+  });
 
-    let retry: number | undefined = undefined;
+  axiosInstance.interceptors.response.use(
+    (res) => res,
+    (err: AxiosError) => {
+      const response = err.response;
+      if (!response) throw new ApiError({ message: "Network error" });
 
-    if (typeof retryAfter === "string") retry = Number(retryAfter);
+      const retryAfter = response.headers?.["retry-after"] as string | undefined;
 
-    const data = response.data as any;
+      let retry: number | undefined = undefined;
 
-    throw new ApiError({
-      statusCode: response.status,
-      message: data.message ?? data.error ?? response.statusText,
-      retry,
-    });
-  },
-);
+      if (typeof retryAfter === "string") retry = Number(retryAfter);
+
+      const data = response.data as { message?: string; error?: string };
+
+      throw new ApiError({
+        statusCode: response.status,
+        message: data.message ?? data.error ?? response.statusText,
+        retry,
+      });
+    },
+  );
+
+  return axiosInstance;
+}

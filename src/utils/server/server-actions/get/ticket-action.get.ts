@@ -2,15 +2,10 @@
 
 import { Ticket } from "@/types/ticket.types";
 import { ActionResult } from "@/types/actions.types";
-import { cacheTag, cacheLife } from "next/cache";
 import { AxiosResponse } from "axios";
 import { httpGet } from "../../server.http";
 import { ApiError } from "@/types/error.types";
 export async function getTickets(): Promise<ActionResult<Array<Ticket>>> {
-  "use cache";
-  cacheTag("tickets");
-  cacheLife({ revalidate: 300, expire: 3600 });
-
   try {
     const response: AxiosResponse<Array<Ticket>> =
       await httpGet<Array<Ticket>>("/ticket");
@@ -48,10 +43,6 @@ export async function getTickets(): Promise<ActionResult<Array<Ticket>>> {
 }
 
 export async function getTicket(id: string): Promise<ActionResult<Ticket>> {
-  "use cache";
-  cacheTag(`ticket-${id}`); 
-  cacheLife({ revalidate: 300, expire: 3600 });
-
   try {
     const response: AxiosResponse<Ticket> =
       await httpGet<Ticket>(`/ticket/${id}`);

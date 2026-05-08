@@ -1,13 +1,13 @@
 "server-only";
 
 import { AxiosRequestConfig } from "axios";
-import { axiosInstance } from "./axios.instance";
+import { getAxiosInstance } from "./axios.instance";
 
 export async function httpGet<TResponse>(
   url: string,
   options: AxiosRequestConfig = {},
 ) {
-  return await axiosInstance.get<TResponse>(url, options);
+  return await getAxiosInstance().get<TResponse>(url, options);
 }
 
 export async function httpPost<TRequest, TResponse = unknown>(
@@ -15,7 +15,7 @@ export async function httpPost<TRequest, TResponse = unknown>(
   data: TRequest,
   options: AxiosRequestConfig = {},
 ) {
-  return await axiosInstance.post<TRequest, TResponse>(url, data, options);
+  return await getAxiosInstance().post<TRequest, TResponse>(url, data, options);
 }
 
 export async function httpPatch<TRequest, TResponse = unknown>(
@@ -23,7 +23,7 @@ export async function httpPatch<TRequest, TResponse = unknown>(
   data: TRequest,
   options: AxiosRequestConfig = {},
 ) {
-  return await axiosInstance.patch<TRequest, TResponse>(url, data, options);
+  return await getAxiosInstance().patch<TRequest, TResponse>(url, data, options);
 }
 
 export async function httpPut<TRequest, TResponse = unknown>(
@@ -31,12 +31,12 @@ export async function httpPut<TRequest, TResponse = unknown>(
   data: TRequest,
   options: AxiosRequestConfig = {},
 ) {
-  return await axiosInstance.put<TRequest, TResponse>(url, data, options);
+  return await getAxiosInstance().put<TRequest, TResponse>(url, data, options);
 }
 export async function httpDelete<TResponse = unknown>(
   url: string,
   options: AxiosRequestConfig = {},
 ) {
-  return await axiosInstance.delete<TResponse>(url, options);
+  return await getAxiosInstance().delete<TResponse>(url, options);
 }
 

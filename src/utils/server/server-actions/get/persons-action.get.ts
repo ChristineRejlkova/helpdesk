@@ -2,16 +2,11 @@
 
 import { Person } from "@/types/person.types";
 import { ActionResult } from "../../../../types/actions.types";
-import { cacheTag, cacheLife } from "next/cache";
 import { AxiosResponse } from "axios";
 import { httpGet } from "../../server.http";
 import { ApiError } from "@/types/error.types";
 
 export async function getPersons(): Promise<ActionResult<Array<Person>>> {
-  "use cache";
-  cacheTag("persons");
-  cacheLife({ revalidate: 300, expire: 3600 });
-
   try {
     const response: AxiosResponse<Array<Person>> =
       await httpGet<Array<Person>>("/person");
@@ -49,10 +44,6 @@ export async function getPersons(): Promise<ActionResult<Array<Person>>> {
 }
 
 export async function getPerson(id: string): Promise<ActionResult<Person>> {
-  "use cache";
-  cacheTag(`person-${id}`); 
-  cacheLife({ revalidate: 300, expire: 3600 });
-
   try {
     const response: AxiosResponse<Person> =
       await httpGet<Person>(`/person/${id}`);
