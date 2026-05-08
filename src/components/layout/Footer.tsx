@@ -22,7 +22,7 @@ export default function Footer() {
         <NavLink href="/room" text="Místnosti" />
         <NavLink href="/device" text="Zařízení" />
         <NavLink href="/ticket" text="Tickety" />
-        <NavLink href="/admin/login" text="Administrace" />
+        <NavLink href="/login" text="Administrace" />
       </div>
 
       <p

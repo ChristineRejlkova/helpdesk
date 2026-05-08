@@ -1,36 +1,129 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Spuštění:
+Nastavení .env.local:
+API_URL=https://your-api-url
+API_KEY=your-secret-api-key
 
-## Getting Started
-
-First, run the development server:
-
-```bash
+Spuštění (vývoj):
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Aplikace poběží na:
+http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Produkční režim (správné chování cache):
+npm run build
+npm run start
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+Admin login (API key):
+Login:
+Přihlášení probíhá na /admin/login
+Po odeslání formuláře se uloží:
+localStorage.setItem("isAdmin", "true");
+Uživatel je přesměrován do /admin
+Neprobíhá reálné ověření – jde o jednoduché demo řešení
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+API komunikace:
+Všechny requesty na backend obsahují API key:
+headers: {
+  "x-api-key": process.env.API_KEY
+}
+API key je uložen pouze na serveru (.env.local)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+SSR (Server-Side Rendering):
+Použito u:
+/device/[id]
+/person/[id]
+/room/[id]
+/ticket/[id]
+všechny admin detail stránky = zobrazují konkrétní záznam
+data musí být vždy aktuální
+nelze spoléhat jen na statickou cache
+potřeba vždy aktuálních dat podle ID
+
+
+
+
+ISR (Incremental Static Regeneration) =rychlé načítání díky cache, data se automaticky obnovují po změně (revalidateTag):
+Použito u:
+
+/ (landing page – dashboard) = zobrazuje počty entit (osoby, místnosti, zařízení, tickety), není nutné mít absolutně aktuální data při každém requestu
+
+/device
+/person
+/room
+/ticket
+== seznamy se často čtou, ale méně často mění
+chceme:
+výkon (cache)
+ale zároveň aktuální data po CRUD operacích
+
+/admin =zobrazují agregovaná data (počty), není nutná 100% aktuálnost při každém načtení
+
+všechny admin seznamy = podobná logika jako u public seznamů
+admin často provádí změny → potřeba revalidace
+ISR + revalidateTag zajistí aktuálnost
+
+
+
+
+CSR (Client-Side Rendering):
+Použito pouze u:
+formuláře (create / update) = práce se stavem (useState),validace inputů, interaktivní chování (submit, reset)
+
+/admin/login = práce se stavem (inputy, formuláře), interaktivita na klientovi, práce s localStorage
+
+
+
+
+use cache:
+Použito ve funkcích:
+getDevices
+getPersons
+getRooms
+getTickets
+getDevice, getPerson, getRoom, getTicket 
+=
+cachování odpovědí z API, zrychlení načítání
+
+
+
+
+
+cacheTag:
+Použito pro označení dat:
+devices
+persons
+rooms
+tickets
+device-[id], person-[id], ...
+=
+možnost cílené invalidace cache
+
+
+
+
+
+cacheLife:
+Použito ve všech get funkcích:
+cacheLife({ revalidate: 300, expire: 3600 });
+= 
+automatická obnova dat, určení životnosti cache
+
+
+
+
+revalidateTag:
+Použito v server actions:
+createDevice, editDevice, deleteDevice
+createPerson, editPerson, deletePerson
+createRoom, editRoom, deleteRoom
+createTicket, editTicket, deleteTicket
+=
+po změně dat se invaliduje cache, zajištění aktuálních dat na stránkách

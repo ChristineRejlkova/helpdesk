@@ -117,7 +117,6 @@ export default function DeviceList({
 
         return (
           <div key={device.id}>
-            {/* 🔥 CARD klik */}
             <div
               onClick={() => router.push(detailHref)}
               style={{ cursor: "pointer" }}
